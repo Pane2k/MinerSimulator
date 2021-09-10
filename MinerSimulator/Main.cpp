@@ -5,6 +5,9 @@
 
 using namespace std;
 
+const int CONSOLE_LINE = 84;
+const int CHUNK_SIZE = 16;
+
 struct WindowSettings
 {
 public:
@@ -15,7 +18,10 @@ class entity
 {
     string name;
     int hp;
+    int pos[CHUNK_SIZE][CHUNK_SIZE];
 }; 
+
+
 
 class mob : public entity
 {
@@ -66,7 +72,7 @@ class player : public mob
 class map
 {
 public:
-    char map_res[16][16] = {    {'S','S','S','S','S','S','S','S','S','S','S','S','S','S','S','S'},
+    char map_res[CHUNK_SIZE][CHUNK_SIZE] = {    {'S','S','S','S','S','S','S','S','S','S','S','S','S','S','S','S'},
                                 {'S','S','S','S','S','S','S','S','S','S','S','S','S','S','S','S'},
                                 {'S','S','S','S','S','S','S','S','S','S','S','S','S','S','S','S'},
                                 {'S','S','S','S','S','S','S','S','S','S','S','S','S','S','S','S'},
@@ -81,10 +87,8 @@ public:
                                 {'S','S','S','S','S','S','S','S','S','S','S','S','S','S','S','S'},
                                 {'S','S','S','S','S','S','S','S','S','S','S','S','S','S','S','S'},
                                 {'S','S','S','S','S','S','S','S','S','S','S','S','S','S','S','S'},
-                                {'S','S','S','S','S','S','S','S','S','S','S','S','S','S','S','P'}, };
+                                {'S','S','S','S','S','S','S','S','S','S','S','S','S','S','S','S'}, };
 private:
-    int size_x = 8;
-    int size_y = 8;
     
 }map_side;
 
@@ -181,6 +185,8 @@ public:
     }
     void CursoreWritePos()
     {
+        SetCursorePosition(WinSet.CameraPlayer + 2, CursoreControl.GetScreenHigth() - 2);
+        cout << "                                                                                   ";
         SetCursorePosition(WinSet.CameraPlayer + 2, CursoreControl.GetScreenHigth() - 2);
     }
 private:
@@ -279,7 +285,6 @@ public:
             {
                 SetCursorePosition((x_coord*2)-1, y_coord);
                 char map_block = map_side.map_res[y][x];
-                
 
                 switch (map_block)
                 {
@@ -296,12 +301,52 @@ public:
                     default:
                         break;
                 }
-            }
-            
-        }
-        
+            } 
+        }        
     }
+}MainConsole;
+
+int GetHash(string str) 
+{
+    hash<string> string_hash;
+    return string_hash(str);
+}
+enum ConsoleWriteHash
+{
+    UP = 1660128160,
+    Down = 651557717,
+    Left = 272375920,
+    Right = 462935941,
 };
+
+void ControlGame() 
+{
+    
+    bool Console_bool = true;
+    while (Console_bool)
+    {
+        char str[CONSOLE_LINE];
+
+        CursoreControl.CursoreWritePos();
+        cin.getline(str, CONSOLE_LINE);
+
+        MainConsole.draw_map();
+        for (int str_to_up = 0; str_to_up < CONSOLE_LINE; str_to_up++)
+        {
+            str[str_to_up] = toupper(str[str_to_up]);
+        }
+        int LineHash = GetHash(str);
+        CursoreControl.SetCursorePosition(WinSet.CameraPlayer + 2, CursoreControl.GetScreenHigth() - 4);
+        cout << LineHash;
+        switch (LineHash)
+        {
+        case ConsoleWriteHash::UP:
+
+        default:
+            break;
+        }
+    }
+}
 
 int main()
 {
@@ -310,10 +355,11 @@ int main()
 
     system("mode con lines=40 cols=120");
 
-    draw_view MainConsole;
+
     MainConsole.draw_outline();
     MainConsole.draw_map();
     CursoreControl.CursoreWritePos();
+    ControlGame();
     system("PAUSE");
 }
 
